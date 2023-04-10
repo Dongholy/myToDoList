@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 const todoList = [{
     id: 1,
     text: '공부하자',
-    done: false,
+    done: 'x',
 }];
 
 // app.get('/', function (req, res) {
@@ -32,6 +32,7 @@ app.post('/api/todo', (req, res) => {
     return res.send('성공!')
 })
 
+// 삭제
 app.delete('/api/todo/:id', (req, res) => {
   const id = Number(req.params.id); // 라우터의 매개변수 예를 들어 /:id/:name 경로가 있으면 ":id"속성과 ":name"속성을 req.params.id, req.params.name으로 사용할 수 있다.
   const index = todoList.findIndex((todo) => todo.id === id);
@@ -41,6 +42,22 @@ app.delete('/api/todo/:id', (req, res) => {
   todoList.splice(index, 1); //  배열의 기존 요소를 삭제 또는 교체하거나 새 요소를 추가하여 배열의 내용을 변경
   return res.send('성공!');
 });
+
+// 추가
+app.put('/api/todo/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const index = todoList.findIndex((todo) => todo.id === id);
+    if (index === -1) {
+      return res.status(404).send('Todo not found');
+    }
+    const { text, done } = req.body;
+    todoList[index] = {
+      id,
+      text,
+      done,
+    };
+    return res.send('성공!');
+  });
 
 app.listen(4000, () => {
     console.log('server start!!')

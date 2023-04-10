@@ -6,6 +6,8 @@ import './App.css';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
+  const [text, setText] = useState('');
+  const [done, setDone] = useState(false);
 
   const fetchD = () => {
      // 서버에 데이터를 요청하려면 서버 주소 , 어떤 method 필요
@@ -31,8 +33,6 @@ function App() {
   // 입력된 값 받아오기
   const onSubmitHandler = (e) => {
     e.preventDefault();
-    const text = e.target.text.value;
-    const done = e.target.done.checked;
 
     fetch('http://localhost:4000/api/todo', {
       method: 'POST',
@@ -41,9 +41,11 @@ function App() {
       },
       body: JSON.stringify({
         text,
-        done,
+        done: false,
       }),
-    }).then(() => fetchD())
+    }).then(() => {fetchD();
+      setText(''); // 입력값 초기화
+    })
   }
 
   // 삭제 핸들러
@@ -52,21 +54,47 @@ function App() {
       method: 'DELETE'
     }).then(() => fetchD());
   }
-  
+
+
+  // 박스 체크 핸들러
+  const onCheckHandler = (id, done) => {
+    fetch(`http://localhost:4000/api/todo/${id}`, {
+      method: 'PUT',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        done: !done // toggle done
+      }),
+    }).then(() => fetchD());
+  }
+
   return (
     <div className="App">
       <h1>todoList</h1>
       <form onSubmit={onSubmitHandler}>
-        <input name='text' />
-        <input name='done' type='checkbox' />
+         <input
+          name='text'
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
         <input type='submit' value="추가" />
       </form>
       {todoList.map((todo) => (
         <div key={todo.id}>
           <div>{todo.id}</div>
           <div>{todo.text}</div>
-          <div>{todo.done ? 'Yes' : 'No'}</div>
+          <div>
+            {/* checkbox를 통해 done 여부를 선택 */}
+            <input
+              type='checkbox'
+              checked={todo.done}
+              onChange={() => onCheckHandler(todo.id, todo.done)}
+            />
+            {todo.done ? '완료' : '도전중'}
+          </div>
           <button onClick={() => onDeleteHandler(todo.id)}>삭제</button>
+          
         </div>
       ))}
     </div>
