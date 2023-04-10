@@ -45,6 +45,13 @@ function App() {
       }),
     }).then(() => fetchD())
   }
+
+  // 삭제 핸들러
+  const onDeleteHandler = (id) => {
+    fetch(`http://localhost:4000/api/todo/${id}`, {
+      method: 'DELETE'
+    }).then(() => fetchD());
+  }
   
   return (
     <div className="App">
@@ -59,6 +66,7 @@ function App() {
           <div>{todo.id}</div>
           <div>{todo.text}</div>
           <div>{todo.done ? 'Yes' : 'No'}</div>
+          <button onClick={() => onDeleteHandler(todo.id)}>삭제</button>
         </div>
       ))}
     </div>
